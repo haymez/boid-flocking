@@ -29,11 +29,11 @@ export default class Boid {
   }
 
   update(boids: Boid[]): void {
+    this.acceleration.mult(0)
     this.flock(boids)
 
     this.position.add(this.velocity)
     this.velocity.add(this.acceleration).limit(MAX_SPEED)
-    this.acceleration.mult(0)
     this.handleScreenWrap()
   }
 
@@ -48,6 +48,7 @@ export default class Boid {
   flock(boids: Boid[]): void {
     const alignmentForce = Vector.blank()
     const cohesionForce = Vector.blank()
+    const separationForce = Vector.blank()
     let total = 0
 
     for (const boid of boids) {
@@ -56,9 +57,18 @@ export default class Boid {
       const notThisBoid = boid !== this
 
       if (withinLocalRadius && notThisBoid) {
+        const separationDiff = Vector.from(this.position).subtract(
+          boid.position,
+        )
+
+        if (distance !== 0) separationDiff.div(distance)
+        else separationDiff.mult(Infinity)
+
         total++
         alignmentForce.add(boid.velocity)
         cohesionForce.add(boid.position)
+
+        separationForce.add(separationDiff)
       }
     }
 
@@ -75,8 +85,17 @@ export default class Boid {
         .setMagnitude(MAX_SPEED)
         .subtract(this.velocity)
         .limit(MAX_FORCE)
+
+      separationForce
+        .div(total)
+        .setMagnitude(MAX_SPEED)
+        .subtract(this.velocity)
+        .limit(MAX_FORCE)
     }
 
-    this.acceleration.add(alignmentForce).add(cohesionForce)
+    this.acceleration
+      .add(alignmentForce)
+      .add(cohesionForce)
+      .add(separationForce)
   }
 }
