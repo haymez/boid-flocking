@@ -1,4 +1,5 @@
 import Boid from 'lib/Boid'
+import FlockSettings from 'lib/FlockSettings'
 import React, { CSSProperties, FC, useEffect, useRef } from 'react'
 
 const css = require('./styles.scss')
@@ -13,6 +14,7 @@ const App: FC = () => {
     height: `${canvasHeight}px`,
   }
   const boidsRef = useRef<Boid[]>([])
+  const flockSettingsRef = useRef<FlockSettings>()
 
   // Functions
   const drawStuff = (ctx: CanvasRenderingContext2D) => {
@@ -20,9 +22,9 @@ const App: FC = () => {
 
     for (const boid of boidsRef.current) {
       ctx.beginPath()
-      ctx.arc(boid.position.x, boid.position.y, 8, 0, 2 * Math.PI)
+      ctx.arc(boid.position.x, boid.position.y, 4, 0, 2 * Math.PI)
 
-      boid.update()
+      boid.update(boidsRef.current)
       ctx.fill()
     }
 
@@ -35,9 +37,16 @@ const App: FC = () => {
     const canvas = canvasRef.current
     const ctx = canvas?.getContext('2d')
     boidsRef.current = []
+    flockSettingsRef.current = new FlockSettings({ localRadius: 50 })
 
-    for (let i = 0; i < 100; i++) {
-      boidsRef.current.push(new Boid(canvasWidth, canvasHeight))
+    for (let i = 0; i < 200; i++) {
+      boidsRef.current.push(
+        new Boid({
+          cageWidth: canvasWidth,
+          cageHeight: canvasHeight,
+          flockSettings: flockSettingsRef.current,
+        }),
+      )
     }
 
     if (!canvas || !ctx) return
