@@ -1,0 +1,26 @@
+// Material
+$material-04: rgba(255, 255, 255, 0.04);
+$material-08: rgba(255, 255, 255, 0.08);
+$material-12: rgba(255, 255, 255, 0.12);
+$material-34: rgba(255, 255, 255, 0.34);
+$material-54: rgba(255, 255, 255, 0.54);
+$material-67: rgba(255, 255, 255, 0.67);
+$material-87: rgba(255, 255, 255, 0.87);
+
+// Colors
+$black: #000;
+$white: #fff;
+$green: #76ff98;
+$blue: #82b1ff;
+$teal: #aaf8df;
+$purple: #5a5ac0;
+$pink: #ff8383;
+$red: #fc6060;
+$background: #1f1f1f;
+$shadow: darken($background, 5%);
+
+// Sizes
+$border-radius: 4px;
+$normal: 16px;
+$box-shadow: 0 0 7px $material-12;
+$page-margin: 16px;

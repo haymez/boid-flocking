@@ -1,0 +1,27 @@
+@import './constants.scss';
+
+@mixin svg-fill-helper {
+  stroke: $black;
+
+  &.white svg {
+    stroke: $white;
+  }
+  &.green svg {
+    stroke: $green;
+  }
+  &.blue svg {
+    stroke: $blue;
+  }
+  &.teal svg {
+    stroke: $teal;
+  }
+  &.purple svg {
+    stroke: $purple;
+  }
+  &.pink svg {
+    stroke: $pink;
+  }
+  &.red svg {
+    stroke: $red;
+  }
+}

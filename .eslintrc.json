@@ -1,0 +1,36 @@
+{
+  "parser": "@typescript-eslint/parser",
+  "extends": [
+    "plugin:react/recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:prettier/recommended",
+    "prettier/@typescript-eslint"
+  ],
+  "parserOptions": {
+    "ecmaVersion": 2018,
+    "sourceType": "module",
+    "ecmaFeatures": {
+      "jsx": true
+    }
+  },
+  "rules": {
+    "semi": ["error", "never"],
+    "indent": "off",
+    "@typescript-eslint/indent": "off",
+    "quotes": ["error", "single", "avoid-escape"],
+    "no-console": "warn",
+    "no-unreachable": "error",
+    "no-unused-vars": "warn",
+    "react/jsx-curly-spacing": [2, "never"],
+    "@typescript-eslint/explicit-function-return-type": "off",
+    "@typescript-eslint/no-var-requires": "off",
+    "@typescript-eslint/no-empty-interface": "off",
+    "@typescript-eslint/camelcase": "off",
+    "react/no-unescaped-entities": "off"
+  },
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
+  }
+}
