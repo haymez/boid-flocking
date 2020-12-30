@@ -8,9 +8,6 @@ interface BoidOpts {
   flockSettings: FlockSettings
 }
 
-const MAX_FORCE = 0.2
-const MAX_SPEED = 4
-
 export default class Boid {
   cageWidth: number
   cageHeight: number
@@ -33,7 +30,7 @@ export default class Boid {
     this.flock(boids)
 
     this.position.add(this.velocity)
-    this.velocity.add(this.acceleration).limit(MAX_SPEED)
+    this.velocity.add(this.acceleration).limit(this.flockSettings.maxSpeed)
     this.handleScreenWrap()
   }
 
@@ -75,27 +72,27 @@ export default class Boid {
     if (total > 0) {
       alignmentForce
         .div(total)
-        .setMagnitude(MAX_SPEED)
+        .setMagnitude(this.flockSettings.maxSpeed)
         .subtract(this.velocity)
-        .limit(MAX_FORCE)
+        .limit(this.flockSettings.maxForce)
 
       cohesionForce
         .div(total)
         .subtract(this.position)
-        .setMagnitude(MAX_SPEED)
+        .setMagnitude(this.flockSettings.maxSpeed)
         .subtract(this.velocity)
-        .limit(MAX_FORCE)
+        .limit(this.flockSettings.maxForce)
 
       separationForce
         .div(total)
-        .setMagnitude(MAX_SPEED)
+        .setMagnitude(this.flockSettings.maxSpeed)
         .subtract(this.velocity)
-        .limit(MAX_FORCE)
+        .limit(this.flockSettings.maxForce)
     }
 
     this.acceleration
-      .add(alignmentForce)
-      .add(cohesionForce)
-      .add(separationForce)
+      .add(alignmentForce.mult(this.flockSettings.alignment))
+      .add(cohesionForce.mult(this.flockSettings.cohesion))
+      .add(separationForce.mult(this.flockSettings.separation))
   }
 }

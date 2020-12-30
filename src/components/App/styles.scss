@@ -12,12 +12,51 @@
 }
 
 .controlRoomContainer {
-  background-color: darken($background, 3%);
-  opacity: 0.75;
   position: absolute;
   top: 8px;
   right: 8px;
+}
+
+.controlRoomWrapper {
+  position: relative;
+  transition: all 0.3s;
+  background-color: darken($background, 3%);
+  opacity: 0.1;
   padding: 16px;
   color: $material-87;
   font-size: 12px;
+  min-width: 250px;
+
+  &:hover {
+    opacity: 1;
+  }
+}
+
+.fps {
+  position: absolute;
+  right: 4px;
+  top: 4px;
+}
+
+.title {
+  font-weight: 300;
+  font-size: 14px;
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.label {
+  font-weight: 300;
+  margin-bottom: 2px;
+}
+
+.slider {
+  width: 100%;
+  display: block;
+  margin: 0;
+  padding: 0;
+}
+
+.rangeContainer {
+  margin-bottom: 8px;
 }
