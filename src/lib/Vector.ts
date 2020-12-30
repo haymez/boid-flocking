@@ -49,12 +49,16 @@ export default class Vector {
     return this.div(currMagnitude).mult(magnitude)
   }
 
-  distanceFrom(vector: Vector): number {
+  distanceFrom = (vector: Vector): number => {
     return Vector.from(this).subtract(vector).magnitude()
   }
 
-  magnitude(): number {
+  magnitude = (): number => {
     return Math.sqrt(Math.pow(this.x, 2) + Math.pow(this.y, 2))
+  }
+
+  angle = (): number => {
+    return Math.atan(this.y / this.x)
   }
 
   static blank(): Vector {

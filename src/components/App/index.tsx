@@ -39,11 +39,21 @@ const App: FC = () => {
     ctx.clearRect(0, 0, canvasWidth, canvasHeight)
 
     for (const boid of boidsRef.current) {
+      // Circle
       ctx.beginPath()
       ctx.arc(boid.position.x, boid.position.y, 1, 0, 2 * Math.PI)
+      ctx.fill()
+
+      // const angle = boid.velocity.angle()
+      // ctx.beginPath()
+      // ctx.moveTo(boid.position.x, boid.position.y)
+      // ctx.lineTo(boid.position.x - 2, boid.position.y)
+      // ctx.lineTo(boid.position.x, boid.position.y + 6)
+      // ctx.lineTo(boid.position.x + 2, boid.position.y)
+      // ctx.closePath()
+      // ctx.fill()
 
       boid.update(boidsRef.current)
-      ctx.fill()
     }
 
     animationRef.current = requestAnimationFrame(() => {
@@ -93,6 +103,7 @@ const App: FC = () => {
 
     ctx.resetTransform()
     ctx.fillStyle = 'rgba(255, 255, 255, 0.5)'
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)'
     ctx.scale(2, 2)
 
     animationRef.current = requestAnimationFrame(() => {
