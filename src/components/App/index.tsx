@@ -1,6 +1,7 @@
 import Button from 'components/Button'
 import Boid from 'lib/Boid'
 import FlockSettings from 'lib/FlockSettings'
+import Vector from 'lib/Vector'
 import React, {
   ChangeEvent,
   CSSProperties,
@@ -11,6 +12,7 @@ import React, {
 } from 'react'
 
 const css = require('./styles.scss')
+const BOID_COUNT = 300
 
 const App: FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -36,6 +38,34 @@ const App: FC = () => {
   const [paused, setPaused] = useState(false)
 
   // Functions
+  const drawTriangle = (ctx: CanvasRenderingContext2D, boid: Boid): void => {
+    const triangleHeight = 8
+    const triangleWidth = 3
+    const angle = boid.velocity.angle()
+    const flipTriangle = boid.velocity.x < 0 ? -1 : 1
+    const topPoint = new Vector(
+      Math.cos(angle) * triangleHeight * flipTriangle,
+      Math.sin(angle) * triangleHeight * flipTriangle,
+    ).add(boid.position)
+    const leftAngle = angle - 0.5 * Math.PI
+    const leftPoint = new Vector(
+      Math.cos(leftAngle) * (triangleWidth / 2),
+      Math.sin(leftAngle) * (triangleWidth / 2),
+    ).add(boid.position)
+    const rightAngle = angle + 0.5 * Math.PI
+    const rightPoint = new Vector(
+      Math.cos(rightAngle) * (triangleWidth / 2),
+      Math.sin(rightAngle) * (triangleWidth / 2),
+    ).add(boid.position)
+
+    ctx.beginPath()
+    ctx.moveTo(leftPoint.x, leftPoint.y)
+    ctx.lineTo(topPoint.x, topPoint.y)
+    ctx.lineTo(rightPoint.x, rightPoint.y)
+    ctx.closePath()
+    ctx.fill()
+  }
+
   const drawStuff = (ctx: CanvasRenderingContext2D) => {
     gensRef.current += 1
 
@@ -44,18 +74,11 @@ const App: FC = () => {
 
       for (const boid of boidsRef.current) {
         // Circle
-        ctx.beginPath()
-        ctx.arc(boid.position.x, boid.position.y, 1, 0, 2 * Math.PI)
-        ctx.fill()
-
-        // const angle = boid.velocity.angle()
         // ctx.beginPath()
-        // ctx.moveTo(boid.position.x, boid.position.y)
-        // ctx.lineTo(boid.position.x - 2, boid.position.y)
-        // ctx.lineTo(boid.position.x, boid.position.y + 6)
-        // ctx.lineTo(boid.position.x + 2, boid.position.y)
-        // ctx.closePath()
+        // ctx.arc(boid.position.x, boid.position.y, 1, 0, 2 * Math.PI)
         // ctx.fill()
+
+        drawTriangle(ctx, boid)
 
         boid.update(boidsRef.current)
       }
@@ -94,7 +117,7 @@ const App: FC = () => {
         maxSpeed,
       })
 
-      for (let i = 0; i < 300; i++) {
+      for (let i = 0; i < BOID_COUNT; i++) {
         boidsRef.current.push(
           new Boid({
             cageWidth: canvasWidth,
