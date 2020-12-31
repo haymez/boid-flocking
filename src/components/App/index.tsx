@@ -1,3 +1,4 @@
+import Button from 'components/Button'
 import Boid from 'lib/Boid'
 import FlockSettings from 'lib/FlockSettings'
 import React, {
@@ -32,28 +33,32 @@ const App: FC = () => {
   const [maxForce, setMaxForce] = useState(0.2)
   const [maxSpeed, setMaxSpeed] = useState(5)
   const [fps, setFps] = useState(0)
+  const [paused, setPaused] = useState(false)
 
   // Functions
   const drawStuff = (ctx: CanvasRenderingContext2D) => {
     gensRef.current += 1
-    ctx.clearRect(0, 0, canvasWidth, canvasHeight)
 
-    for (const boid of boidsRef.current) {
-      // Circle
-      ctx.beginPath()
-      ctx.arc(boid.position.x, boid.position.y, 1, 0, 2 * Math.PI)
-      ctx.fill()
+    if (!paused) {
+      ctx.clearRect(0, 0, canvasWidth, canvasHeight)
 
-      // const angle = boid.velocity.angle()
-      // ctx.beginPath()
-      // ctx.moveTo(boid.position.x, boid.position.y)
-      // ctx.lineTo(boid.position.x - 2, boid.position.y)
-      // ctx.lineTo(boid.position.x, boid.position.y + 6)
-      // ctx.lineTo(boid.position.x + 2, boid.position.y)
-      // ctx.closePath()
-      // ctx.fill()
+      for (const boid of boidsRef.current) {
+        // Circle
+        ctx.beginPath()
+        ctx.arc(boid.position.x, boid.position.y, 1, 0, 2 * Math.PI)
+        ctx.fill()
 
-      boid.update(boidsRef.current)
+        // const angle = boid.velocity.angle()
+        // ctx.beginPath()
+        // ctx.moveTo(boid.position.x, boid.position.y)
+        // ctx.lineTo(boid.position.x - 2, boid.position.y)
+        // ctx.lineTo(boid.position.x, boid.position.y + 6)
+        // ctx.lineTo(boid.position.x + 2, boid.position.y)
+        // ctx.closePath()
+        // ctx.fill()
+
+        boid.update(boidsRef.current)
+      }
     }
 
     animationRef.current = requestAnimationFrame(() => {
@@ -79,24 +84,25 @@ const App: FC = () => {
   useEffect(() => {
     const canvas = canvasRef.current
     const ctx = canvas?.getContext('2d')
-    boidsRef.current = []
-    flockSettingsRef.current = new FlockSettings({
-      localRadius,
-      alignment,
-      cohesion,
-      separation,
-      maxForce,
-      maxSpeed,
-    })
+    if (boidsRef.current.length === 0) {
+      flockSettingsRef.current = new FlockSettings({
+        localRadius,
+        alignment,
+        cohesion,
+        separation,
+        maxForce,
+        maxSpeed,
+      })
 
-    for (let i = 0; i < 300; i++) {
-      boidsRef.current.push(
-        new Boid({
-          cageWidth: canvasWidth,
-          cageHeight: canvasHeight,
-          flockSettings: flockSettingsRef.current,
-        }),
-      )
+      for (let i = 0; i < 300; i++) {
+        boidsRef.current.push(
+          new Boid({
+            cageWidth: canvasWidth,
+            cageHeight: canvasHeight,
+            flockSettings: flockSettingsRef.current,
+          }),
+        )
+      }
     }
 
     if (!canvas || !ctx) return
@@ -121,7 +127,7 @@ const App: FC = () => {
       if (animationRef.current) cancelAnimationFrame(animationRef.current)
       if (fpsIntervalRef.current) clearInterval(fpsIntervalRef.current)
     }
-  }, [])
+  }, [paused])
 
   return (
     <div className={css.container}>
@@ -208,6 +214,9 @@ const App: FC = () => {
               onChange={handleChange(setSeparation)}
             />
           </div>
+          <Button onClick={() => setPaused(!paused)}>
+            {paused ? 'Play' : 'Pause'}
+          </Button>
         </div>
       </div>
     </div>
