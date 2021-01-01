@@ -41,16 +41,6 @@ export default class Vector {
     return this.div(this.magnitude()).mult(magnitude)
   }
 
-  setAngle = (angle: number): Vector => {
-    const magnitude = this.magnitude()
-    const newX = Math.cos(angle) * magnitude
-    const newY = Math.sin(angle) * magnitude
-    this.x = newX
-    this.y = newY
-
-    return this
-  }
-
   limit = (magnitude: number): Vector => {
     const currMagnitude = this.magnitude()
 

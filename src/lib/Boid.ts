@@ -1,5 +1,7 @@
 import FlockSettings from './FlockSettings'
 import { random } from './math'
+import QuadTree from './Quadtree'
+import Rectangle from './Rectangle'
 import Vector from './Vector'
 
 interface BoidOpts {
@@ -25,9 +27,9 @@ export default class Boid {
     this.flockSettings = flockSettings
   }
 
-  update(boids: Boid[]): void {
+  update(quadTree: QuadTree<Boid>): void {
     this.acceleration.mult(0)
-    this.flock(boids)
+    this.flock(quadTree)
 
     this.position.add(this.velocity)
     this.velocity.add(this.acceleration).limit(this.flockSettings.maxSpeed)
@@ -42,12 +44,19 @@ export default class Boid {
     else if (this.position.y < 0) this.position.y = this.cageHeight
   }
 
-  flock(boids: Boid[]): void {
+  flock(quadTree: QuadTree<Boid>): void {
     const alignmentForce = Vector.blank()
     const cohesionForce = Vector.blank()
     const separationForce = Vector.blank()
     let total = 0
+    const radius = this.flockSettings.localRadius / 2
+    const perceptionRadius = new Vector(radius, radius)
+    const perceptionRect = new Rectangle(
+      Vector.from(this.position).subtract(perceptionRadius),
+      Vector.from(this.position).add(perceptionRadius),
+    )
 
+    const boids = quadTree.nodesInBound(perceptionRect)
     for (const boid of boids) {
       const distance = boid.position.distanceFrom(this.position)
       const withinLocalRadius = distance <= this.flockSettings.localRadius

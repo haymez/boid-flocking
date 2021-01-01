@@ -1,6 +1,8 @@
 import Button from 'components/Button'
 import Boid from 'lib/Boid'
 import FlockSettings from 'lib/FlockSettings'
+import Node from 'lib/Node'
+import QuadTree from 'lib/Quadtree'
 import Vector from 'lib/Vector'
 import React, {
   ChangeEvent,
@@ -12,7 +14,7 @@ import React, {
 } from 'react'
 
 const css = require('./styles.scss')
-const BOID_COUNT = 300
+const BOID_COUNT = 500
 
 const App: FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -36,6 +38,7 @@ const App: FC = () => {
   const [maxSpeed, setMaxSpeed] = useState(5)
   const [fps, setFps] = useState(0)
   const [paused, setPaused] = useState(false)
+  const [visualizeQtree, setVisualizeQtree] = useState(false)
 
   // Functions
   const drawTriangle = (ctx: CanvasRenderingContext2D, boid: Boid): void => {
@@ -66,21 +69,42 @@ const App: FC = () => {
     ctx.fill()
   }
 
+  const drawQtree = (ctx: CanvasRenderingContext2D, qtree: QuadTree<Boid>) => {
+    if (!visualizeQtree) return
+
+    ctx.beginPath()
+    ctx.moveTo(qtree.boundary.topLeft.x, qtree.boundary.topLeft.y)
+    ctx.lineTo(qtree.boundary.bottomRight.x, qtree.boundary.topLeft.y)
+    ctx.lineTo(qtree.boundary.bottomRight.x, qtree.boundary.bottomRight.y)
+    ctx.lineTo(qtree.boundary.topLeft.x, qtree.boundary.bottomRight.y)
+    ctx.closePath()
+    ctx.stroke()
+
+    if (qtree.northWest) drawQtree(ctx, qtree.northWest)
+    if (qtree.northEast) drawQtree(ctx, qtree.northEast)
+    if (qtree.southWest) drawQtree(ctx, qtree.southWest)
+    if (qtree.southEast) drawQtree(ctx, qtree.southEast)
+  }
+
   const drawStuff = (ctx: CanvasRenderingContext2D) => {
     gensRef.current += 1
 
     if (!paused) {
+      const qTree = new QuadTree<Boid>(
+        new Vector(0, 0),
+        new Vector(canvasWidth, canvasHeight),
+      )
       ctx.clearRect(0, 0, canvasWidth, canvasHeight)
 
       for (const boid of boidsRef.current) {
-        // Circle
-        // ctx.beginPath()
-        // ctx.arc(boid.position.x, boid.position.y, 1, 0, 2 * Math.PI)
-        // ctx.fill()
+        qTree.insert(new Node(boid.position, boid))
+      }
 
+      drawQtree(ctx, qTree)
+
+      for (const boid of boidsRef.current) {
         drawTriangle(ctx, boid)
-
-        boid.update(boidsRef.current)
+        boid.update(qTree)
       }
     }
 
@@ -150,7 +174,7 @@ const App: FC = () => {
       if (animationRef.current) cancelAnimationFrame(animationRef.current)
       if (fpsIntervalRef.current) clearInterval(fpsIntervalRef.current)
     }
-  }, [paused])
+  }, [paused, visualizeQtree])
 
   return (
     <div className={css.container}>
@@ -167,15 +191,17 @@ const App: FC = () => {
           <div className={css.title}>Controls</div>
           <div className={css.rangeContainer}>
             <div className={css.label}>Perception Radius: {localRadius}</div>
-            <input
-              className={css.slider}
-              min={1}
-              max={200}
-              type="range"
-              step="1"
-              value={localRadius}
-              onChange={handleChange(setLocalRadius)}
-            />
+            <div>
+              <input
+                className={css.slider}
+                min={1}
+                max={200}
+                type="range"
+                step="1"
+                value={localRadius}
+                onChange={handleChange(setLocalRadius)}
+              />
+            </div>
           </div>
           <div className={css.rangeContainer}>
             <div className={css.label}>Max Force: {maxForce}</div>
@@ -237,6 +263,14 @@ const App: FC = () => {
               onChange={handleChange(setSeparation)}
             />
           </div>
+          <label>
+            <input
+              type="checkbox"
+              checked={visualizeQtree}
+              onChange={() => setVisualizeQtree(!visualizeQtree)}
+            />
+            Visualize Quad Tree
+          </label>
           <Button onClick={() => setPaused(!paused)}>
             {paused ? 'Play' : 'Pause'}
           </Button>
