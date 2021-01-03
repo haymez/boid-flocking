@@ -14,7 +14,7 @@ import React, {
 } from 'react'
 
 const css = require('./styles.scss')
-const BOID_COUNT = 500
+const BOID_COUNT = 300
 
 const App: FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
