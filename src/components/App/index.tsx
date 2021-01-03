@@ -1,4 +1,5 @@
 import Button from 'components/Button'
+import usePrevious from 'hooks/usePrevious'
 import Boid from 'lib/Boid'
 import FlockSettings from 'lib/FlockSettings'
 import Node from 'lib/Node'
@@ -14,7 +15,6 @@ import React, {
 } from 'react'
 
 const css = require('./styles.scss')
-const BOID_COUNT = 300
 
 const App: FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -30,6 +30,8 @@ const App: FC = () => {
   }
   const boidsRef = useRef<Boid[]>([])
   const flockSettingsRef = useRef<FlockSettings>()
+  const [boidCount, setBoidCount] = useState(300)
+  const [quadTreeLimit, setQuadTreeLimit] = useState(10)
   const [localRadius, setLocalRadius] = useState(50)
   const [alignment, setAlignment] = useState(1)
   const [cohesion, setCohesion] = useState(1)
@@ -39,6 +41,7 @@ const App: FC = () => {
   const [fps, setFps] = useState(0)
   const [paused, setPaused] = useState(false)
   const [visualizeQtree, setVisualizeQtree] = useState(false)
+  const prevBoidCount = usePrevious(boidCount)
 
   // Functions
   const drawTriangle = (ctx: CanvasRenderingContext2D, boid: Boid): void => {
@@ -93,6 +96,7 @@ const App: FC = () => {
       const qTree = new QuadTree<Boid>(
         new Vector(0, 0),
         new Vector(canvasWidth, canvasHeight),
+        quadTreeLimit,
       )
       ctx.clearRect(0, 0, canvasWidth, canvasHeight)
 
@@ -131,7 +135,10 @@ const App: FC = () => {
   useEffect(() => {
     const canvas = canvasRef.current
     const ctx = canvas?.getContext('2d')
-    if (boidsRef.current.length === 0) {
+    const boidCountChanged = prevBoidCount !== boidCount
+
+    if (boidsRef.current.length === 0 || boidCountChanged) {
+      boidsRef.current = []
       flockSettingsRef.current = new FlockSettings({
         localRadius,
         alignment,
@@ -141,7 +148,7 @@ const App: FC = () => {
         maxSpeed,
       })
 
-      for (let i = 0; i < BOID_COUNT; i++) {
+      for (let i = 0; i < boidCount; i++) {
         boidsRef.current.push(
           new Boid({
             cageWidth: canvasWidth,
@@ -174,7 +181,7 @@ const App: FC = () => {
       if (animationRef.current) cancelAnimationFrame(animationRef.current)
       if (fpsIntervalRef.current) clearInterval(fpsIntervalRef.current)
     }
-  }, [paused, visualizeQtree])
+  }, [paused, visualizeQtree, boidCount, quadTreeLimit])
 
   return (
     <div className={css.container}>
@@ -189,6 +196,34 @@ const App: FC = () => {
         <div className={css.controlRoomWrapper}>
           <div className={css.fps}>fps: {fps}</div>
           <div className={css.title}>Controls</div>
+          <div className={css.rangeContainer}>
+            <div className={css.label}>Boid count: {boidCount}</div>
+            <div>
+              <input
+                className={css.slider}
+                min={1}
+                max={2000}
+                type="range"
+                step="1"
+                value={boidCount}
+                onChange={handleChange(setBoidCount)}
+              />
+            </div>
+          </div>
+          <div className={css.rangeContainer}>
+            <div className={css.label}>Quad Tree Limit: {quadTreeLimit}</div>
+            <div>
+              <input
+                className={css.slider}
+                min={1}
+                max={100}
+                type="range"
+                step="1"
+                value={quadTreeLimit}
+                onChange={handleChange(setQuadTreeLimit)}
+              />
+            </div>
+          </div>
           <div className={css.rangeContainer}>
             <div className={css.label}>Perception Radius: {localRadius}</div>
             <div>

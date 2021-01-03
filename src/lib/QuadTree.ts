@@ -2,33 +2,30 @@ import Vector from './Vector'
 import Node from './Node'
 import Rectangle from './Rectangle'
 
-const ID = { curr: 0 }
-
 export default class QuadTree<T> {
   boundary: Rectangle
-  node: Node<T> | null = null
-
+  nodes: Node<T>[]
+  limit: number
   northWest: QuadTree<T> | null = null
   northEast: QuadTree<T> | null = null
   southWest: QuadTree<T> | null = null
   southEast: QuadTree<T> | null = null
-  id: number
 
-  constructor(topLeft: Vector, bottomRight: Vector) {
+  constructor(topLeft: Vector, bottomRight: Vector, limit: number) {
     this.boundary = new Rectangle(topLeft, bottomRight)
-    this.id = ID.curr++
+    this.nodes = []
+    this.limit = limit
   }
 
   insert(node: Node<T>): void {
-    if (node === null) return
     if (!this.inBoundary(node.point)) return
 
     const { point } = node
     const quadWidth = this.boundary.bottomRight.x - this.boundary.topLeft.x
     const quadHeight = this.boundary.bottomRight.y - this.boundary.topLeft.y
 
-    if (quadWidth <= 1 || quadHeight <= 1) {
-      if (this.node === null) this.node = node
+    if (quadWidth <= 1 || quadHeight <= 1 || this.nodes.length < this.limit) {
+      this.nodes.push(node)
 
       return
     }
@@ -42,6 +39,7 @@ export default class QuadTree<T> {
           this.northWest = new QuadTree(
             new Vector(this.boundary.topLeft.x, this.boundary.topLeft.y),
             new Vector(midX, midY),
+            this.limit,
           )
         }
 
@@ -51,6 +49,7 @@ export default class QuadTree<T> {
           this.southWest = new QuadTree(
             new Vector(this.boundary.topLeft.x, midY),
             new Vector(midX, this.boundary.bottomRight.y),
+            this.limit,
           )
         }
 
@@ -62,6 +61,7 @@ export default class QuadTree<T> {
           this.northEast = new QuadTree(
             new Vector(midX, this.boundary.topLeft.y),
             new Vector(this.boundary.bottomRight.x, midY),
+            this.limit,
           )
         }
 
@@ -74,6 +74,7 @@ export default class QuadTree<T> {
               this.boundary.bottomRight.x,
               this.boundary.bottomRight.y,
             ),
+            this.limit,
           )
         }
 
@@ -82,47 +83,17 @@ export default class QuadTree<T> {
     }
   }
 
-  search(point: Vector): Node<T> | null {
-    if (!this.inBoundary(point)) return null
-    if (this.node !== null) return this.node
-
-    const midX = (this.boundary.topLeft.x + this.boundary.bottomRight.x) / 2
-    const midY = (this.boundary.topLeft.y + this.boundary.bottomRight.y) / 2
-
-    if (point.x <= midX) {
-      if (point.y <= midY) {
-        if (this.northWest === null) return null
-
-        return this.northWest.search(point)
-      } else {
-        if (this.southWest === null) return null
-
-        return this.southWest.search(point)
-      }
-    } else {
-      if (point.y <= midY) {
-        if (this.northEast === null) return null
-
-        return this.northEast.search(point)
-      } else {
-        if (this.southEast === null) return null
-
-        return this.southEast.search(point)
-      }
-    }
-  }
-
-  nodesInBound(boundary: Rectangle): T[] {
+  nodesInBound(boundary: Rectangle): Node<T>[] {
     if (!boundary.intersects(this.boundary)) return []
 
-    if (this.node) return [this.node.data]
+    const nodes: Node<T>[] = this.nodes
 
     const nw = this.northWest?.nodesInBound(boundary) || []
     const ne = this.northEast?.nodesInBound(boundary) || []
     const sw = this.southWest?.nodesInBound(boundary) || []
     const se = this.southEast?.nodesInBound(boundary) || []
 
-    return nw.concat(ne).concat(sw).concat(se)
+    return nodes.concat(nw).concat(ne).concat(sw).concat(se)
   }
 
   inBoundary(point: Vector): boolean {

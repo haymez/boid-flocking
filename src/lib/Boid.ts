@@ -56,8 +56,9 @@ export default class Boid {
       Vector.from(this.position).add(perceptionRadius),
     )
 
-    const boids = quadTree.nodesInBound(perceptionRect)
-    for (const boid of boids) {
+    const nodes = quadTree.nodesInBound(perceptionRect)
+    for (const node of nodes) {
+      const boid = node.data
       const distance = boid.position.distanceFrom(this.position)
       const withinLocalRadius = distance <= this.flockSettings.localRadius
       const notThisBoid = boid !== this
