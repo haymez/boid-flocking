@@ -187,7 +187,6 @@ function App() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen relative">
       <canvas
-        className="absolute inset-0"
         ref={canvasRef}
         width={canvasWidth * 2}
         height={canvasHeight * 2}
