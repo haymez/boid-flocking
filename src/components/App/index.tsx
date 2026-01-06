@@ -10,8 +10,15 @@ import Node from 'lib/Node'
 import QuadTree from 'lib/QuadTree'
 import Vector from 'lib/Vector'
 import { CSSProperties, useEffect, useRef, useState } from 'react'
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '../ui/collapsible'
+import { LucideArrowDown, LucideArrowUp, LucideArrowUpDown } from 'lucide-react'
 
 function App() {
+  const [menuOpen, setMenuOpen] = useState(false)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const animationRef = useRef<number>()
   const fpsIntervalRef = useRef<number>()
@@ -189,106 +196,142 @@ function App() {
       <div className="absolute top-2 right-2 bg-primary text-primary-foreground text-xs px-2 py-1 rounded">
         fps: {fps}
       </div>
-      <div className="absolute top-10 right-2 z-10">
-        <div className="bg-card border border-border rounded-lg p-4 shadow-lg min-w-[280px] space-y-4">
-          <div className="text-lg font-semibold text-center mb-2">Controls</div>
-          <div className="space-y-2">
-            <Label className="text-sm">Boid count: {boidCount}</Label>
-            <Slider
-              min={1}
-              max={2000}
-              step={1}
-              value={[boidCount]}
-              onValueChange={handleSliderChange(setBoidCount)}
-            />
+      <Collapsible
+        open={menuOpen}
+        onOpenChange={setMenuOpen}
+        className="absolute top-10 right-2 z-10 flex flex-col items-end"
+      >
+        <CollapsibleTrigger asChild>
+          <div className="flex items-center gap-2 mb-2">
+            Settings
+            <Button variant="ghost" aria-label="Settings" size="icon">
+              <LucideArrowUpDown />
+            </Button>
           </div>
-          <div className="space-y-2">
-            <Label className="text-sm">Quad Tree Limit: {quadTreeLimit}</Label>
-            <Slider
-              min={1}
-              max={100}
-              step={1}
-              value={[quadTreeLimit]}
-              onValueChange={handleSliderChange(setQuadTreeLimit)}
-            />
+        </CollapsibleTrigger>
+        <CollapsibleContent>
+          <div className="bg-card border border-border rounded-lg p-4 shadow-lg min-w-[280px] space-y-4">
+            <div className="text-lg font-semibold text-center mb-2">
+              Controls
+            </div>
+            <div className="space-y-2">
+              <Label className="text-sm">Boid count: {boidCount}</Label>
+              <Slider
+                aria-label="Boid count slider"
+                min={1}
+                max={2000}
+                step={1}
+                value={[boidCount]}
+                onValueChange={handleSliderChange(setBoidCount)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-sm">
+                Quad Tree Limit: {quadTreeLimit}
+              </Label>
+              <Slider
+                aria-label="Quad tree limit slider"
+                min={1}
+                max={100}
+                step={1}
+                value={[quadTreeLimit]}
+                onValueChange={handleSliderChange(setQuadTreeLimit)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-sm">
+                Perception Radius: {localRadius}
+              </Label>
+              <Slider
+                aria-label="Local radius slider"
+                min={1}
+                max={200}
+                step={1}
+                value={[localRadius]}
+                onValueChange={handleSliderChange(setLocalRadius)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-sm">Max Force: {maxForce}</Label>
+              <Slider
+                aria-label="Max force slider"
+                min={0}
+                max={10}
+                step={0.1}
+                value={[maxForce]}
+                onValueChange={handleSliderChange(setMaxForce)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-sm">Max Speed: {maxSpeed}</Label>
+              <Slider
+                aria-label="Max speed slider"
+                min={0}
+                max={20}
+                step={0.5}
+                value={[maxSpeed]}
+                onValueChange={handleSliderChange(setMaxSpeed)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-sm">Alignment: {alignment}</Label>
+              <Slider
+                aria-label="Alignment slider"
+                min={0}
+                max={1}
+                step={0.01}
+                value={[alignment]}
+                onValueChange={handleSliderChange(setAlignment)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-sm">Cohesion: {cohesion}</Label>
+              <Slider
+                aria-label="Cohesion slider"
+                min={0}
+                max={1}
+                step={0.01}
+                value={[cohesion]}
+                onValueChange={handleSliderChange(setCohesion)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-sm">Separation: {separation}</Label>
+              <Slider
+                aria-label="Separation slider"
+                min={0}
+                max={1}
+                step={0.01}
+                value={[separation]}
+                onValueChange={handleSliderChange(setSeparation)}
+              />
+            </div>
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                aria-label="Visualize quadtree checkbox"
+                id="visualize-qtree"
+                checked={visualizeQtree}
+                onCheckedChange={(checked: CheckedState) =>
+                  setVisualizeQtree(!!checked)
+                }
+              />
+              <Label
+                htmlFor="visualize-qtree"
+                className="text-sm cursor-pointer"
+              >
+                Visualize Quad Tree
+              </Label>
+            </div>
+            <Button
+              aria-label="Play pause toggle"
+              onClick={() => setPaused(!paused)}
+              className="w-full"
+            >
+              {paused ? 'Play' : 'Pause'}
+            </Button>
           </div>
-          <div className="space-y-2">
-            <Label className="text-sm">Perception Radius: {localRadius}</Label>
-            <Slider
-              min={1}
-              max={200}
-              step={1}
-              value={[localRadius]}
-              onValueChange={handleSliderChange(setLocalRadius)}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label className="text-sm">Max Force: {maxForce}</Label>
-            <Slider
-              min={0}
-              max={10}
-              step={0.1}
-              value={[maxForce]}
-              onValueChange={handleSliderChange(setMaxForce)}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label className="text-sm">Max Speed: {maxSpeed}</Label>
-            <Slider
-              min={0}
-              max={20}
-              step={0.5}
-              value={[maxSpeed]}
-              onValueChange={handleSliderChange(setMaxSpeed)}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label className="text-sm">Alignment: {alignment}</Label>
-            <Slider
-              min={0}
-              max={1}
-              step={0.01}
-              value={[alignment]}
-              onValueChange={handleSliderChange(setAlignment)}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label className="text-sm">Cohesion: {cohesion}</Label>
-            <Slider
-              min={0}
-              max={1}
-              step={0.01}
-              value={[cohesion]}
-              onValueChange={handleSliderChange(setCohesion)}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label className="text-sm">Separation: {separation}</Label>
-            <Slider
-              min={0}
-              max={1}
-              step={0.01}
-              value={[separation]}
-              onValueChange={handleSliderChange(setSeparation)}
-            />
-          </div>
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="visualize-qtree"
-              checked={visualizeQtree}
-              onCheckedChange={(checked: CheckedState) =>
-                setVisualizeQtree(!!checked)
-              }
-            />
-            <Label htmlFor="visualize-qtree" className="text-sm cursor-pointer">
-              Visualize Quad Tree
-            </Label>
-          </div>
-          <Button onClick={() => setPaused(!paused)} className="w-full">
-            {paused ? 'Play' : 'Pause'}
-          </Button>
-        </div>
-      </div>
+        </CollapsibleContent>
+      </Collapsible>
     </div>
   )
 }
