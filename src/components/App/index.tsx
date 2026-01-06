@@ -15,7 +15,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from '../ui/collapsible'
-import { LucideArrowDown, LucideArrowUp, LucideArrowUpDown } from 'lucide-react'
+import { LucideArrowUpDown } from 'lucide-react'
 
 function App() {
   const [menuOpen, setMenuOpen] = useState(false)
