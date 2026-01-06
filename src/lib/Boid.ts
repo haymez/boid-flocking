@@ -1,6 +1,6 @@
 import FlockSettings from './FlockSettings'
 import { random } from './math'
-import QuadTree from './Quadtree'
+import QuadTree from './QuadTree'
 import Rectangle from './Rectangle'
 import Vector from './Vector'
 

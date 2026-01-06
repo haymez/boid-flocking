@@ -1,22 +1,17 @@
-import Button from 'components/Button'
+import { Button } from '@/components/ui/button'
+import { Slider } from '@/components/ui/slider'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Label } from '@/components/ui/label'
+import type { CheckedState } from '@radix-ui/react-checkbox'
 import usePrevious from 'hooks/usePrevious'
 import Boid from 'lib/Boid'
 import FlockSettings from 'lib/FlockSettings'
 import Node from 'lib/Node'
-import QuadTree from 'lib/Quadtree'
+import QuadTree from 'lib/QuadTree'
 import Vector from 'lib/Vector'
-import React, {
-  ChangeEvent,
-  CSSProperties,
-  FC,
-  useEffect,
-  useRef,
-  useState,
-} from 'react'
+import { CSSProperties, useEffect, useRef, useState } from 'react'
 
-const css = require('./styles.scss')
-
-const App: FC = () => {
+function App() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const animationRef = useRef<number>()
   const fpsIntervalRef = useRef<number>()
@@ -117,20 +112,19 @@ const App: FC = () => {
     })
   }
 
-  const handleChange = (setValue: (value: number) => void) => (
-    e: ChangeEvent<HTMLInputElement>,
-  ) => {
-    setValue(Number(e.target.value))
+  const handleSliderChange =
+    (setValue: (value: number) => void) => (values: number[]) => {
+      setValue(values[0])
 
-    flockSettingsRef.current?.update({
-      localRadius,
-      alignment,
-      cohesion,
-      separation,
-      maxForce,
-      maxSpeed,
-    })
-  }
+      flockSettingsRef.current?.update({
+        localRadius,
+        alignment,
+        cohesion,
+        separation,
+        maxForce,
+        maxSpeed,
+      })
+    }
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -184,129 +178,113 @@ const App: FC = () => {
   }, [paused, visualizeQtree, boidCount, quadTreeLimit])
 
   return (
-    <div className={css.container}>
+    <div className="flex flex-col items-center justify-center min-h-screen relative">
       <canvas
-        className={css.canvas}
+        className="absolute inset-0"
         ref={canvasRef}
         width={canvasWidth * 2}
         height={canvasHeight * 2}
         style={style}
       />
-      <div className={css.controlRoomContainer}>
-        <div className={css.controlRoomWrapper}>
-          <div className={css.fps}>fps: {fps}</div>
-          <div className={css.title}>Controls</div>
-          <div className={css.rangeContainer}>
-            <div className={css.label}>Boid count: {boidCount}</div>
-            <div>
-              <input
-                className={css.slider}
-                min={1}
-                max={2000}
-                type="range"
-                step="1"
-                value={boidCount}
-                onChange={handleChange(setBoidCount)}
-              />
-            </div>
+      <div className="absolute top-2 right-2 bg-primary text-primary-foreground text-xs px-2 py-1 rounded">
+        fps: {fps}
+      </div>
+      <div className="absolute top-10 right-2 z-10">
+        <div className="bg-card border border-border rounded-lg p-4 shadow-lg min-w-[280px] space-y-4">
+          <div className="text-lg font-semibold text-center mb-2">Controls</div>
+          <div className="space-y-2">
+            <Label className="text-sm">Boid count: {boidCount}</Label>
+            <Slider
+              min={1}
+              max={2000}
+              step={1}
+              value={[boidCount]}
+              onValueChange={handleSliderChange(setBoidCount)}
+            />
           </div>
-          <div className={css.rangeContainer}>
-            <div className={css.label}>Quad Tree Limit: {quadTreeLimit}</div>
-            <div>
-              <input
-                className={css.slider}
-                min={1}
-                max={100}
-                type="range"
-                step="1"
-                value={quadTreeLimit}
-                onChange={handleChange(setQuadTreeLimit)}
-              />
-            </div>
+          <div className="space-y-2">
+            <Label className="text-sm">Quad Tree Limit: {quadTreeLimit}</Label>
+            <Slider
+              min={1}
+              max={100}
+              step={1}
+              value={[quadTreeLimit]}
+              onValueChange={handleSliderChange(setQuadTreeLimit)}
+            />
           </div>
-          <div className={css.rangeContainer}>
-            <div className={css.label}>Perception Radius: {localRadius}</div>
-            <div>
-              <input
-                className={css.slider}
-                min={1}
-                max={200}
-                type="range"
-                step="1"
-                value={localRadius}
-                onChange={handleChange(setLocalRadius)}
-              />
-            </div>
+          <div className="space-y-2">
+            <Label className="text-sm">Perception Radius: {localRadius}</Label>
+            <Slider
+              min={1}
+              max={200}
+              step={1}
+              value={[localRadius]}
+              onValueChange={handleSliderChange(setLocalRadius)}
+            />
           </div>
-          <div className={css.rangeContainer}>
-            <div className={css.label}>Max Force: {maxForce}</div>
-            <input
-              className={css.slider}
+          <div className="space-y-2">
+            <Label className="text-sm">Max Force: {maxForce}</Label>
+            <Slider
               min={0}
               max={10}
-              type="range"
-              step="0.1"
-              value={maxForce}
-              onChange={handleChange(setMaxForce)}
+              step={0.1}
+              value={[maxForce]}
+              onValueChange={handleSliderChange(setMaxForce)}
             />
           </div>
-          <div className={css.rangeContainer}>
-            <div className={css.label}>Max Speed: {maxSpeed}</div>
-            <input
-              className={css.slider}
+          <div className="space-y-2">
+            <Label className="text-sm">Max Speed: {maxSpeed}</Label>
+            <Slider
               min={0}
               max={20}
-              type="range"
-              step="0.5"
-              value={maxSpeed}
-              onChange={handleChange(setMaxSpeed)}
+              step={0.5}
+              value={[maxSpeed]}
+              onValueChange={handleSliderChange(setMaxSpeed)}
             />
           </div>
-          <div className={css.rangeContainer}>
-            <div className={css.label}>Alignment: {alignment}</div>
-            <input
-              className={css.slider}
+          <div className="space-y-2">
+            <Label className="text-sm">Alignment: {alignment}</Label>
+            <Slider
               min={0}
               max={1}
-              type="range"
-              step="0.01"
-              value={alignment}
-              onChange={handleChange(setAlignment)}
+              step={0.01}
+              value={[alignment]}
+              onValueChange={handleSliderChange(setAlignment)}
             />
           </div>
-          <div className={css.rangeContainer}>
-            <div className={css.label}>Cohesion: {cohesion}</div>
-            <input
-              className={css.slider}
+          <div className="space-y-2">
+            <Label className="text-sm">Cohesion: {cohesion}</Label>
+            <Slider
               min={0}
               max={1}
-              type="range"
-              step="0.01"
-              value={cohesion}
-              onChange={handleChange(setCohesion)}
+              step={0.01}
+              value={[cohesion]}
+              onValueChange={handleSliderChange(setCohesion)}
             />
           </div>
-          <div className={css.rangeContainer}>
-            <div className={css.label}>Separation: {separation}</div>
-            <input
-              className={css.slider}
+          <div className="space-y-2">
+            <Label className="text-sm">Separation: {separation}</Label>
+            <Slider
               min={0}
               max={1}
-              type="range"
-              step="0.01"
-              value={separation}
-              onChange={handleChange(setSeparation)}
+              step={0.01}
+              value={[separation]}
+              onValueChange={handleSliderChange(setSeparation)}
             />
           </div>
-          <label>
-            <input
-              type="checkbox"
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="visualize-qtree"
               checked={visualizeQtree}
-              onChange={() => setVisualizeQtree(!visualizeQtree)}
+              onCheckedChange={(checked: CheckedState) =>
+                setVisualizeQtree(!!checked)
+              }
             />
-            Visualize Quad Tree
-          </label>
-          <Button onClick={() => setPaused(!paused)}>
+            <Label htmlFor="visualize-qtree" className="text-sm cursor-pointer">
+              Visualize Quad Tree
+            </Label>
+          </div>
+          <Button onClick={() => setPaused(!paused)} className="w-full">
             {paused ? 'Play' : 'Pause'}
           </Button>
         </div>

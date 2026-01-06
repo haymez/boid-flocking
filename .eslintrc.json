@@ -2,12 +2,12 @@
   "parser": "@typescript-eslint/parser",
   "extends": [
     "plugin:react/recommended",
+    "plugin:react-hooks/recommended",
     "plugin:@typescript-eslint/recommended",
-    "plugin:prettier/recommended",
-    "prettier/@typescript-eslint"
+    "plugin:prettier/recommended"
   ],
   "parserOptions": {
-    "ecmaVersion": 2018,
+    "ecmaVersion": 2020,
     "sourceType": "module",
     "ecmaFeatures": {
       "jsx": true
@@ -20,13 +20,13 @@
     "quotes": ["error", "single", "avoid-escape"],
     "no-console": "warn",
     "no-unreachable": "error",
-    "no-unused-vars": "warn",
+    "no-unused-vars": "off",
+    "@typescript-eslint/no-unused-vars": ["warn"],
     "react/jsx-curly-spacing": [2, "never"],
     "@typescript-eslint/explicit-function-return-type": "off",
-    "@typescript-eslint/no-var-requires": "off",
     "@typescript-eslint/no-empty-interface": "off",
-    "@typescript-eslint/camelcase": "off",
-    "react/no-unescaped-entities": "off"
+    "react/no-unescaped-entities": "off",
+    "react/react-in-jsx-scope": "off"
   },
   "settings": {
     "react": {

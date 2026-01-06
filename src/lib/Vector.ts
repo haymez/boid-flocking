@@ -1,5 +1,3 @@
-import { random } from './math'
-
 export default class Vector {
   x: number
   y: number
